@@ -130,12 +130,18 @@ public class AddDetailsFragment extends android.app.Fragment {
                     @Override
                     public void call(Response<Integer> voidResponse) {
                         Log.i("TAG", "Onnext");
+                        while (getFragmentManager().getBackStackEntryCount() > 0) {
+                            getFragmentManager().popBackStackImmediate();
+                        }
                     }
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
                         Log.i("TAG", "onerror");
                         throwable.printStackTrace();
+                        while (getFragmentManager().getBackStackEntryCount() > 0) {
+                            getFragmentManager().popBackStackImmediate();
+                        }
 
 
                     }
