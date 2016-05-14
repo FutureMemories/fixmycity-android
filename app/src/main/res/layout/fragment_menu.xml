@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<se.futurememories.fixmycity.report.MenuView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#552196F3"
-    tools:ignore="MissingPrefix">
+    android:background="#992196F3"
+    tools:ignore="MissingPrefix"
+    android:clickable="true">
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,18 +37,20 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
                 <ImageButton
+                    android:id="@+id/suggest_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:scaleType="centerInside"
                     android:background="@drawable/suggestion_button"/>
                 <TextView
+                    android:id="@+id/suggest_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Förslag"
                     android:textSize="19sp"
                     android:textColor="@android:color/white"
                     android:gravity="center"
-                    fontPath="fonts/CircularStd-Bold.ttf" />
+                    fontPath="fonts/CircularStd-Bold.otf" />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="0dp"
@@ -55,18 +58,20 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
                 <ImageButton
+                    android:id="@+id/question_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:scaleType="centerInside"
                     android:background="@drawable/question_button"/>
                 <TextView
+                    android:id="@+id/question_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Fråga"
                     android:textSize="19sp"
                     android:textColor="@android:color/white"
                     android:gravity="center"
-                    fontPath="fonts/CircularStd-Bold.ttf" />
+                    fontPath="fonts/CircularStd-Bold.otf" />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="0dp"
@@ -74,18 +79,20 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
                 <ImageButton
+                    android:id="@+id/praise_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:scaleType="centerInside"
                     android:background="@drawable/praise_button"/>
                 <TextView
+                    android:id="@+id/praise_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Beröm"
                     android:textSize="19sp"
                     android:textColor="@android:color/white"
                     android:gravity="center"
-                    fontPath="fonts/CircularStd-Bold.ttf" />
+                    fontPath="fonts/CircularStd-Bold.otf" />
             </LinearLayout>
         </LinearLayout>
         <LinearLayout
@@ -104,20 +111,22 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <Button
+                <ImageButton
+                    android:id="@+id/problem_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:scaleType="centerInside"
                     android:background="@drawable/problem_button" />
 
                 <TextView
+                    android:id="@+id/problem_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Problem"
                     android:textSize="19sp"
                     android:textColor="@android:color/white"
                     android:gravity="center"
-                    fontPath="fonts/CircularStd-Bold.ttf" />
+                    fontPath="fonts/CircularStd-Bold.otf" />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="0dp"
@@ -125,18 +134,20 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
                 <ImageButton
+                    android:id="@+id/broken_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:scaleType="centerInside"
                     android:background="@drawable/broken_button"/>
                 <TextView
+                    android:id="@+id/broken_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Skada"
                     android:textSize="19sp"
                     android:textColor="@android:color/white"
                     android:gravity="center"
-                    fontPath="fonts/CircularStd-Bold.ttf" />
+                    fontPath="fonts/CircularStd-Bold.otf" />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="0dp"
@@ -144,18 +155,20 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
                 <ImageButton
+                    android:id="@+id/dirty_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:scaleType="centerInside"
                     android:background="@drawable/dirty_button"/>
                 <TextView
+                    android:id="@+id/dirty_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Renhållning"
                     android:textSize="19sp"
                     android:textColor="@android:color/white"
                     android:gravity="center"
-                    fontPath="fonts/CircularStd-Bold.ttf" />
+                    fontPath="fonts/CircularStd-Bold.otf" />
             </LinearLayout>
         </LinearLayout>
 
@@ -172,4 +185,4 @@
         android:gravity="center"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="30dp" />
-</RelativeLayout>
+</se.futurememories.fixmycity.report.MenuView>

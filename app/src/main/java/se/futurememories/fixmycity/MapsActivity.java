@@ -14,34 +14,34 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.transition.ChangeBounds;
-import android.transition.Fade;
-import android.transition.Scene;
-import android.transition.Slide;
-import android.transition.TransitionManager;
-import android.transition.TransitionSet;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
 import android.widget.FrameLayout;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import retrofit2.Response;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
+import se.futurememories.fixmycity.model.ApiManager;
 import se.futurememories.fixmycity.model.MyMarker;
 import se.futurememories.fixmycity.report.MenuFragment;
-import se.futurememories.fixmycity.report.MenuView;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MapsActivity extends Activity implements OnMapReadyCallback, android.location.LocationListener, MenuFragment.OnFragmentInteractionListener {
@@ -53,12 +53,7 @@ public class MapsActivity extends Activity implements OnMapReadyCallback, androi
     @BindView(R.id.fab_btn)
     FloatingActionButton floatingActionButton;
     @BindView(R.id.map)
-    MapView mapView;
-    @BindView(R.id.menu)
-    MenuView menuView;
-
-    private Scene originalScene;
-    private Scene sceneA;
+    FrameLayout mapFragment;
 
     private static final int MY_DANGEROUS_PERMISSIONS_REQ_CODE = 123;
     private GoogleMap mMap;
@@ -69,9 +64,6 @@ public class MapsActivity extends Activity implements OnMapReadyCallback, androi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         ButterKnife.bind(this);
-        mapView.onCreate(savedInstanceState);
-        originalScene = Scene.getSceneForLayout(coordinatorLayout, R.layout.activity_maps, this);
-        sceneA = Scene.getSceneForLayout(coordinatorLayout, R.layout.maps_scene_a, this);
         BottomSheetBehavior behavior = BottomSheetBehavior.from(bottomsheet);
         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         behavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
@@ -91,42 +83,14 @@ public class MapsActivity extends Activity implements OnMapReadyCallback, androi
                     MY_DANGEROUS_PERMISSIONS_REQ_CODE);
         }else {
             // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+            MapFragment mapFragment = MapFragment.newInstance();
             locationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
+            getFragmentManager().beginTransaction().add(R.id.map, mapFragment).commit();
+//            getFragmentManager().beginTransaction().add(R.id.menu, MenuFragment.newInstance()).commit();
 //            MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-            mapView.getMapAsync(this);
-
+            mapFragment.getMapAsync(this);
         }
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mapView.onResume();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mapView.onDestroy();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mapView.onSaveInstanceState(outState);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mapView.onPause();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mapView.onLowMemory();
     }
 
     @Override
@@ -157,7 +121,7 @@ public class MapsActivity extends Activity implements OnMapReadyCallback, androi
         mMap = googleMap;
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        List<MyMarker> myMarkers = addMarkers();
+//        List<MyMarker> myMarkers = addMarkers();
         Location location = getLastKnownLocation();
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
@@ -171,18 +135,34 @@ public class MapsActivity extends Activity implements OnMapReadyCallback, androi
 
         mMap.moveCamera(cameraUpdate);
 
-        for (MyMarker myMarker : myMarkers) {
-            mMap.addMarker(new MarkerOptions().position(myMarker.getPosition()).icon(BitmapDescriptorFactory.fromResource(myMarker.getImageType())));
-        }
+//        for (MyMarker myMarker : myMarkers) {
+//            mMap.addMarker(new MarkerOptions().position(myMarker.getPosition()).icon(BitmapDescriptorFactory.fromResource(myMarker.getImageType())));
+//        }
+
+        ApiManager.getRestInstance().getIssues().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<List<MyMarker>>>() {
+            @Override
+            public void call(Response<List<MyMarker>> listResponse) {
+                List<MyMarker> markers = listResponse.body();
+                for (MyMarker marker : markers) {
+                    LatLng latLng = new LatLng(marker.getPosition().getLat(), marker.getPosition().getaLong());
+                    mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(marker.getImageType())));
+                }
+            }
+        }, new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        });
     }
 
-    private ArrayList<MyMarker> addMarkers() {
-        ArrayList<MyMarker> markers = new ArrayList<>();
-        markers.add(new MyMarker("Förslag", "BadPlats", "Här skulle jag vilja bada", "http://91.189.44.144/akuro/userFiles/projekt/5_1.jpg", new LatLng(57.70833, 11.96913)));
-        markers.add(new MyMarker("Renhållning", "Klotter", "HMe gustaf, mother of all gods", "http://91.189.44.144/akuro/userFiles/projekt/5_1.jpg", new LatLng(57.71333, 11.96778)));
-        markers.add(new MyMarker("Fråga", "", "Vem fan kom det här namnet", "nope.jpeg", new LatLng(57.70734, 11.96785)));
-        return markers;
-    }
+//    private ArrayList<MyMarker> addMarkers() {
+//        ArrayList<MyMarker> markers = new ArrayList<>();
+//        markers.add(new MyMarker("Förslag", "BadPlats", "Här skulle jag vilja bada", "http://91.189.44.144/akuro/userFiles/projekt/5_1.jpg", new LatLng(57.70833, 11.96913)));
+//        markers.add(new MyMarker("Renhållning", "Klotter", "HMe gustaf, mother of all gods", "http://91.189.44.144/akuro/userFiles/projekt/5_1.jpg", new LatLng(57.71333, 11.96778)));
+//        markers.add(new MyMarker("Fråga", "", "Vem fan kom det här namnet", "nope.jpeg", new LatLng(57.70734, 11.96785)));
+//        return markers;
+//    }
 
     @Override
     public void onLocationChanged(Location location) {
@@ -224,18 +204,26 @@ public class MapsActivity extends Activity implements OnMapReadyCallback, androi
 
     @OnClick(R.id.fab_btn)
     public void fabClicked(){
-//        Intent intent = new Intent(this, MenuActivity.class);
-//        startActivity(intent);
-//        overridePendingTransition(R.anim.slide_in_from_bottom, R.anim.zoom_out);
-//        TransitionSet set = new TransitionSet();
-//        set.addTransition(new Fade()).setDuration(500).addTarget(floatingActionButton).addTarget(bottomsheet).addTransition(new Slide()).setDuration(1000).addTarget(menuFragment);
-//        Transition transition = new AutoTransition();
-//        transition.setDuration(500);
-//        TransitionManager.go(sceneA, set);
-//        TransitionManager.go(sceneA);
-//        getFragmentManager().beginTransaction().add(R.id.map, new MapFragment()).commit();
-//        getFragmentManager().beginTransaction().add(R.id.menu, MenuFragment.newInstance()).commit();
-        goToScene(sceneA);
+        ScaleAnimation scaleAnimation = new ScaleAnimation(1.0f, 0.0f, 1.0f, 0.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        scaleAnimation.setDuration(300);
+
+        AlphaAnimation alphaAnimation = new AlphaAnimation(1.0f, 0.0f);
+        alphaAnimation.setDuration(500);
+        alphaAnimation.setFillAfter(true);
+        scaleAnimation.setFillAfter(true);
+        bottomsheet.startAnimation(alphaAnimation);
+        floatingActionButton.startAnimation(scaleAnimation);
+        alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                getFragmentManager().beginTransaction().setCustomAnimations(R.animator.slide_in, 0).add(R.id.map, MenuFragment.newInstance()).addToBackStack(null).commit();
+            }
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
     }
 
     @Override
@@ -248,19 +236,4 @@ public class MapsActivity extends Activity implements OnMapReadyCallback, androi
 
     }
 
-    private void goToScene(Scene scene) {
-        ChangeBounds changeBounds = new ChangeBounds();
-        Fade fadeOut = new Fade(Fade.OUT);
-        Slide slide = new Slide();
-        fadeOut.addTarget(bottomsheet).addTarget(floatingActionButton);
-        slide.addTarget(menuView);
-        fadeOut.addTarget(floatingActionButton).addTarget(bottomsheet);
-        TransitionSet transition = new TransitionSet();
-        transition.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
-        transition
-                .addTransition(fadeOut)
-                .addTransition(slide);
-        transition.setDuration(1000);
-        TransitionManager.go(scene, transition);
-    }
 }

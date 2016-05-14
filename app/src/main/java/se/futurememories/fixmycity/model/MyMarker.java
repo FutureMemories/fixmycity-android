@@ -1,7 +1,5 @@
 package se.futurememories.fixmycity.model;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import se.futurememories.fixmycity.R;
 
 /**
@@ -13,10 +11,10 @@ public class MyMarker {
     private String category;
     private String comment;
     private String image;
-    private LatLng position;
+    private MyLatLng position;
 
 
-    public MyMarker(String type, String category, String comment, String image, LatLng position) {
+    public MyMarker(String type, String category, String comment, String image, MyLatLng position) {
         this.type = type;
         this.category = category;
         this.comment = comment;
@@ -40,7 +38,7 @@ public class MyMarker {
         return image;
     }
 
-    public LatLng getPosition() {
+    public MyLatLng getPosition() {
         return position;
     }
 
